@@ -1,5 +1,7 @@
 package service;
 
+import hyit.app.model.SummaryValue;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -77,6 +79,39 @@ public class ServiceFunction {
 		stmt.close();
 		conn.close();
 		
+		return 0;
+	}
+	
+	//获得teacherNumber从parent_info
+	public int getTeacherNumberByOpenid(String openid) throws Exception{
+		Class.forName(DBDRIVER).newInstance();
+		Connection conn = null;
+		conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+		Statement stmt;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("select * from parent_info where openid = '"+ openid +"'");
+		while(rs.next()){
+			
+			return rs.getInt("teacher_number");
+		}
+		rs.close();
+		stmt.close();
+		conn.close();
+		
+		return 0;
+	} 
+	//根据教师编号获得学院编号
+	public int getDepartmentByTeacherNumber(int number) throws Exception{
+		Class.forName(DBDRIVER).newInstance();
+		Connection conn = null;
+		conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+		Statement stmt;
+		stmt = conn.createStatement();
+		String sql="SELECT * FROM teacher_info WHERE teacher_number = '"+number+"'";
+		ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()){
+			return rs.getInt("department_number");
+		}
 		return 0;
 	}
 	
@@ -437,10 +472,12 @@ public class ServiceFunction {
 				Decrition decrition = new Decrition();
 				str = decrition.subSuccess();
 				stmt = conn.createStatement();
-				stmt.executeUpdate("insert into parent_info(openid, student_number) values('"
+				stmt.executeUpdate("insert into parent_info(openid, student_number,rank) values('"
 						+ openid
 						+ "','" 
 						+ number
+						+ "','" 
+						+ 1
 						+"')");
 			}
 			
@@ -465,4 +502,86 @@ public class ServiceFunction {
 		String sql = "delete from parent_info where openid = '" + openid + "'";
 		stmt.executeUpdate(sql);
 	}
+	
+	
+	//获得前一天所有考勤情况
+	public List<SummaryValue> getAllAbsent() throws Exception{
+		List<SummaryValue> all = new ArrayList<SummaryValue>();
+		SummaryValue info = null;
+		Class.forName(DBDRIVER).newInstance();
+		Connection conn = null;
+		conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+		String sql = "SELECT * FROM summary_value WHERE DATE(date)>=DATE_SUB(CURDATE(),INTERVAL 7 DAY) AND DATE(date)<=DATE_SUB(CURDATE(),INTERVAL 1 DAY) ";//统计前7天的数据
+		Statement stmt;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()){
+			info = new SummaryValue();
+			info.setTeacherNumber(rs.getInt(1));
+			info.setDepartmentNumber(rs.getInt(2));
+			info.setSubjectName(rs.getString(3));
+			info.setAll(rs.getInt(4));
+			info.setAbsent(rs.getInt(5));
+			info.setValue(rs.getString(6));
+			info.setDate(rs.getDate(7));
+			all.add(info);
+		}
+		return all;
+	}
+	//获得前一天学院所有考勤情况
+	public List<SummaryValue> getDepartmentAbsent(int departmentNumber) throws Exception{
+		List<SummaryValue> all = new ArrayList<SummaryValue>();
+		SummaryValue info = null;
+		Class.forName(DBDRIVER).newInstance();
+		Connection conn = null;
+		conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+		String sql = "SELECT * FROM summary_value WHERE DATE(date)>=DATE_SUB(CURDATE(),INTERVAL 7 DAY) AND DATE(date)<=DATE_SUB(CURDATE(),INTERVAL 1 DAY)";//统计前一天的数据
+		Statement stmt;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()){
+			if(rs.getInt("department_number")==departmentNumber){
+				info = new SummaryValue();
+				info.setTeacherNumber(rs.getInt(1));
+				info.setDepartmentNumber(rs.getInt(2));
+				info.setSubjectName(rs.getString(3));
+				info.setAll(rs.getInt(4));
+				info.setAbsent(rs.getInt(5));
+				info.setValue(rs.getString(6));
+				info.setDate(rs.getDate(7));
+				all.add(info);
+			}
+			
+		}
+		return all;
+	}
+	//获得前一天教师课程考勤情况
+	public List<SummaryValue> getTeacherAbsent(int teacherNumber) throws Exception{
+		List<SummaryValue> all = new ArrayList<SummaryValue>();
+		SummaryValue info = null;
+		Class.forName(DBDRIVER).newInstance();
+		Connection conn = null;
+		conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+		String sql = "SELECT * FROM summary_value WHERE DATE(date)>=DATE_SUB(CURDATE(),INTERVAL 7 DAY) AND DATE(date)<=DATE_SUB(CURDATE(),INTERVAL 1 DAY)";//统计前一天的数据
+		Statement stmt;
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()){
+			if(rs.getInt("teacher_number")==teacherNumber){
+				info = new SummaryValue();
+				info.setTeacherNumber(rs.getInt(1));
+				info.setDepartmentNumber(rs.getInt(2));
+				info.setSubjectName(rs.getString(3));
+				info.setAll(rs.getInt(4));
+				info.setAbsent(rs.getInt(5));
+				info.setValue(rs.getString(6));
+				info.setDate(rs.getDate(7));
+				all.add(info);
+			}
+			
+		}
+		return all;
+	}
+	
+	
 }

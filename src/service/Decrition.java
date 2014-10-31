@@ -53,7 +53,7 @@ public class Decrition {
 	//用户名密码绑定
 	public String subUserPwd(){
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("您好,请回复“用户” + “用户名”+ “密码”。 \n如：用户123456#mima").append("\n");
+		buffer.append("您好,请回复“用户” + “用户名#密码”。 \n如：用户123456#mima").append("\n");
 		return buffer.toString();
 	}
 	//22 班级考勤

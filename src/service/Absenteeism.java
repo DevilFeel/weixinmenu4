@@ -25,9 +25,9 @@ public class Absenteeism {
 		BaseFunction baseFunction = new BaseFunction();
 		SummaryAbsent sa = new SummaryAbsent();
 		SummaryValue sv = null;
-		List<SubjectInfo> listSubjcetInfo = new ArrayList<>();
-		List<Integer> listCronNumber = new ArrayList<>();
-		List<CheckInfo> listCheckInfo = new ArrayList<>();
+		List<SubjectInfo> listSubjcetInfo = new ArrayList<SubjectInfo>();
+		List<Integer> listCronNumber = new ArrayList<Integer>();
+		List<CheckInfo> listCheckInfo = new ArrayList<CheckInfo>();
 		//获得所有课程
 		listSubjcetInfo = baseFunction.getAllSubjectInfo();
 		

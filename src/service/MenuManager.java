@@ -68,17 +68,17 @@ public class MenuManager {
 		btn21.setKey("21");
 
 		CommonButton btn22 = new CommonButton();
-		btn22.setName("班级考勤情况");
+		btn22.setName("教室课程情况");
 		btn22.setType("click");
 		btn22.setKey("22");
 
 		CommonButton btn23 = new CommonButton();
-		btn23.setName("学院考勤情况");
+		btn23.setName("学院课程情况");
 		btn23.setType("click");
 		btn23.setKey("23");
 
 		CommonButton btn24 = new CommonButton();
-		btn24.setName("学校考勤情况");
+		btn24.setName("学校课程情况");
 		btn24.setType("click");
 		btn24.setKey("24");
 

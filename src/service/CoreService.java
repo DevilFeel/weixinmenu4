@@ -3,7 +3,10 @@ package service;
 
 
 import hyit.app.factory.DAOFactory;
+import hyit.app.model.DepartmentInfo;
 import hyit.app.model.SummarySheet;
+import hyit.app.model.SummaryValue;
+import hyit.app.model.TeacherInfo;
 import hyit.app.trigger.SummaryAbsentInfo;
 
 import java.sql.Connection;
@@ -17,6 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+
+
+
 
 
 
@@ -82,18 +89,11 @@ public class CoreService {
 			newsMessage.setCreateTime(new Date().getTime());
 			newsMessage.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_NEWS);
 			newsMessage.setFuncFlag(0);
+			
+			//List<Article> article = new ArrayList<Article>();
+			
 			if (msgType.equals(MessageUtil.REQ_MESSAGE_TYPE_TEXT)) {
 				String reqContent = requestMap.get("Content").replace(" ", "");
-				
-				//创建图文消息
-//				NewsMessage newsMessage = new NewsMessage();
-//				newsMessage.setToUserName(fromUserName);
-//				newsMessage.setFromUserName(toUserName);
-//				newsMessage.setCreateTime(new Date().getTime());
-//				newsMessage.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_NEWS);
-//				newsMessage.setFuncFlag(0);
-				
-				//List<Article> articleList = new ArrayList<Article>();
 				if(reqContent.startsWith("AA")){
 					String reqStudentId = reqContent.substring(2);
 					long studentNumber = Long.parseLong(reqStudentId);
@@ -176,49 +176,64 @@ public class CoreService {
 					}
 					
 					textMessage.setContent(respContent);
-					respMessage = MessageUtil.textMessageToXml(textMessage);
-					
-					
+					respMessage = MessageUtil.textMessageToXml(textMessage);	
 				}
-				else if("100".equals(reqContent)){
-					
-					ServiceFunction className = new ServiceFunction();
-					Class.forName(DBDRIVER).newInstance();
-					Connection conn = null;
-					conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
-					Statement stmt;
-					stmt = conn.createStatement();
-					ResultSet rs = stmt.executeQuery("select * from parent_info where openid = '"+ fromUserName +"'");
-					boolean opposite = true;
-					while(rs.next() && opposite){
-						opposite = false;
-						respContent = className.getClassName(rs.getString("student_number"));
+				else if(reqContent.startsWith("学院")){
+					String reqDepartmentNumber = reqContent.substring(2);
+					int departmentNumber = Integer.parseInt(reqDepartmentNumber);
+				
+					ServiceFunction sf = new ServiceFunction();
+					BaseFunction bf = new BaseFunction();
+					int rank = bf.getRankFromParent(fromUserName);
+					if(rank==3 || rank==0){
+						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
+						String str = "";
+						listSummaryValue = sf.getDepartmentAbsent(departmentNumber);
+						if(listSummaryValue.size()==0){
+							respContent = "最近一周没有数据";
+						}else{
+							for(int i=0; i<listSummaryValue.size(); i++){
+								SummaryValue sv = listSummaryValue.get(i);
+								str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+										+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
+										+ "\n";
+								
+							}
+							respContent = "最近一周考勤情况：\n" + str;
+						}
+					}else{
+						respContent = "你 的账号等级不符。";
 					}
-					rs.close();
-					stmt.close();
-					conn.close();
 					
 					textMessage.setContent(respContent);
 					respMessage = MessageUtil.textMessageToXml(textMessage);
-					
-					
 				}
-				else if("101".equals(reqContent)){
-					ServiceFunction className = new ServiceFunction();
-					Class.forName(DBDRIVER).newInstance();
-					Connection conn = null;
-					conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
-					Statement stmt;
-					stmt = conn.createStatement();
-					ResultSet rs = stmt.executeQuery("select * from parent_info where openid = '"+ fromUserName +"'");
-					boolean opposite = true;
-					while(rs.next() && opposite){
-						opposite = false;
-						respContent = className.getAbsentState(rs.getLong("student_number"));
+				else if(reqContent.startsWith("教师")){
+					String reqTeacherNumber = reqContent.substring(2);
+					int teacherNumber = Integer.parseInt(reqTeacherNumber);
+				
+					ServiceFunction sf = new ServiceFunction();
+					BaseFunction bf = new BaseFunction();
+					int rank = bf.getRankFromParent(fromUserName);
+					if(rank==3 || rank==0 || rank==2){
+						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
+						String str = "";
+						listSummaryValue = sf.getTeacherAbsent(teacherNumber);
+						if(listSummaryValue.size()==0){
+							respContent = "最近一周没有数据";
+						}else{
+							for(int i=0; i<listSummaryValue.size(); i++){
+								SummaryValue sv = listSummaryValue.get(i);
+								str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+										+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
+										+ "\n";
+								
+							}
+							respContent = "最近一周考勤情况：\n" + str;
+						}
+					}else{
+						respContent = "你 的账号等级不符。";
 					}
-					rs.close();
-					stmt.close();
-					conn.close();
 					
 					textMessage.setContent(respContent);
 					respMessage = MessageUtil.textMessageToXml(textMessage);
@@ -330,7 +345,8 @@ public class CoreService {
 					} else if (eventKey.equals("21")) {
 						ServiceFunction serviceFunction = new ServiceFunction();
 						long number = serviceFunction.getStudentNumberByOpenid(fromUserName);
-						respContent = String.valueOf(number);
+						String name = serviceFunction.getNameByStudentNumber(number);
+						
 						if(number !=0){
 							SummarySheet summary = null;
 							List<SummarySheet> list = null;
@@ -345,23 +361,130 @@ public class CoreService {
 								String subjectName = serviceFunction.getNameBySubjectNumber(subjectNumber);
 								str = str + subjectName +" 缺勤"+summary.getAbsenteeism() + "次\n";
 							}
-							respContent = str;
+							respContent =name + "\n" + str;
 						}else{
 							respContent = "请绑定学号";
 						}
 						textMessage.setContent(respContent);
 						respMessage = MessageUtil.textMessageToXml(textMessage);
 					} else if (eventKey.equals("22")) {
-						Decrition decrition = new Decrition();
-						respContent = decrition.absentClass();
+						BaseFunction bf = new BaseFunction();
+						ServiceFunction sf = new ServiceFunction();
+						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
+						int teacherNumber = sf.getTeacherNumberByOpenid(fromUserName);
+						java.sql.Date date = null;
+						String str = "";
+						int rank = bf.getRankFromParent(fromUserName);
+						if(rank==1){
+							
+							listSummaryValue = sf.getTeacherAbsent(teacherNumber);
+							if(listSummaryValue.size()==0){
+								respContent = "最近一周没有数据";
+							}else{
+								for(int i=0; i<listSummaryValue.size(); i++){
+									SummaryValue sv = listSummaryValue.get(i);
+									str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+											+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
+											+ "\n";
+									date = sv.getDate();
+								}
+								respContent = "最近一周考勤情况：\n" + str;
+							}
+						}
+						else if(rank ==0 || rank ==3){
+							List<TeacherInfo> listTeacherInfo = new ArrayList<TeacherInfo>();
+							listTeacherInfo = bf.getAllTeacherInfo(1);
+							String tmp = "";
+							for(int i=0; i<listTeacherInfo.size(); i++){
+								TeacherInfo teacherInfo = listTeacherInfo.get(i);
+								tmp = tmp +"教师："+ teacherInfo.getName() +"，编号："+ teacherInfo.getTeacherNumber()+"\n";
+							}
+							respContent = "请输入“教师”+你想查询的教师编号\n例如：教师1314520\n\n"+"\n教师信息如下："+tmp;
+						}
+						else if(rank ==2){
+							List<TeacherInfo> listTeacherInfo = new ArrayList<TeacherInfo>();
+							listTeacherInfo = bf.getAllTeacherInfo(1);
+							String tmp = "";
+							for(int i=0; i<listTeacherInfo.size(); i++){
+								TeacherInfo teacherInfo = listTeacherInfo.get(i);
+								if(teacherInfo.getDepartmentNumber()==sf.getDepartmentByTeacherNumber(teacherNumber)){
+									tmp = tmp +"教师："+ teacherInfo.getName() +"，编号："+ teacherInfo.getTeacherNumber()+"\n";
+								}
+							}
+							respContent = "请输入“教师”+你想查询的教师编号\n例如：教师1314520\n\n"+"\n教师信息如下："+tmp;
+						}
+						else{
+							respContent = "你不是授课教师哦。";
+						}
 						textMessage.setContent(respContent);
 						respMessage = MessageUtil.textMessageToXml(textMessage);
+						
 					} else if (eventKey.equals("23")) {
-						respContent = "敬请期待";
+						BaseFunction bf = new BaseFunction();
+						ServiceFunction sf = new ServiceFunction();
+						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
+						
+						java.sql.Date date = null;
+						String str = "";
+						int rank = bf.getRankFromParent(fromUserName);
+						if(rank==2){
+							int teacherNumber = sf.getTeacherNumberByOpenid(fromUserName);
+							int departmentNumber = sf.getDepartmentByTeacherNumber(teacherNumber);
+							listSummaryValue = sf.getDepartmentAbsent(departmentNumber);
+							if(listSummaryValue.size()==0){
+								respContent = "最近一周没有数据";
+							}else{
+								for(int i=0; i<listSummaryValue.size(); i++){
+									SummaryValue sv = listSummaryValue.get(i);
+									str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+											+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
+											+ "\n";
+									date = sv.getDate();
+								}
+								respContent = "最近一周考勤情况：\n" + str;
+							}
+						}
+						else if(rank ==3 || rank ==0){
+							List<DepartmentInfo> listDepartment = new ArrayList<DepartmentInfo>();
+							listDepartment = bf.getAllDepartmentInfo();
+							String strTmp = "";
+							for(int j=0; j<listDepartment.size(); j++){
+								DepartmentInfo departmentInfo = listDepartment.get(j);
+								strTmp = strTmp +"学院：" + departmentInfo.getName()+",编号："+departmentInfo.getDepartmentNumber()+"\n";
+							}
+							respContent = "请输入“学院”+您想查询的学院编号\n例如：学院666680\n\n各学院信息如下：" + strTmp;
+						}
+						else{
+							respContent = "你不是学院监察员呢。";
+						}
+						
 						textMessage.setContent(respContent);
 						respMessage = MessageUtil.textMessageToXml(textMessage);
 					} else if (eventKey.equals("24")) {
-						respContent = "敬请期待";
+						BaseFunction bf = new BaseFunction();
+						ServiceFunction sf = new ServiceFunction();
+						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
+						java.sql.Date date = null;
+						String str = "";
+						int rank = bf.getRankFromParent(fromUserName);
+						if(rank==3 || rank==0){
+							listSummaryValue = sf.getAllAbsent();
+							if(listSummaryValue.size()==0){
+								respContent = "最近一周没有数据";
+							}else{
+								for(int i=0; i<listSummaryValue.size(); i++){
+									SummaryValue sv = listSummaryValue.get(i);
+									str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+											+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
+											+ "\n";
+									date = sv.getDate();
+								}
+								respContent = "最近一周考勤情况：\n" + str;
+							}
+						}else{
+							respContent = "抱歉，您不是学校监察员";
+						}
+						
 						textMessage.setContent(respContent);
 						respMessage = MessageUtil.textMessageToXml(textMessage);
 					} else if (eventKey.equals("31")) {

@@ -298,7 +298,7 @@ public class BaseFunction {
 	
 	//根据Cron_number 是否 未考勤 , 未考勤则返回true
 		public List<CheckInfo> getCheckInfo(int cronNumber) throws Exception{
-			List<CheckInfo> all = new ArrayList<>();
+			List<CheckInfo> all = new ArrayList<CheckInfo>();
 			CheckInfo info = null;
 			Class.forName(DBDRIVER).newInstance();
 			Connection conn = null;
@@ -366,5 +366,31 @@ public class BaseFunction {
 				teacherInfo.setDepartmentNumber(rs.getInt(8));
 			}
 			return teacherInfo;
+		}
+		
+		//根据rank获得teacherNumber
+		public List<TeacherInfo> getAllTeacherInfo(int rank) throws Exception{
+			List<TeacherInfo> all = new ArrayList<TeacherInfo>();
+			TeacherInfo teacherInfo = null;
+			Class.forName(DBDRIVER).newInstance();
+			Connection conn = null;
+			conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+			Statement stmt;
+			stmt = conn.createStatement();
+			String sql = "SELECT * FROM teacher_info WHERE rank = '"+rank+"'";
+			ResultSet rs = stmt.executeQuery(sql);
+			while(rs.next()){
+				teacherInfo = new TeacherInfo();
+				teacherInfo.setTeacherNumber(rs.getInt(1));
+				teacherInfo.setName(rs.getString(2));
+				teacherInfo.setCardMac(rs.getString(3));
+				teacherInfo.setAccount(rs.getString(4));
+				teacherInfo.setPassword(rs.getString(5));
+				teacherInfo.setRank(rs.getInt(6));
+				teacherInfo.setEmail(rs.getString(7));
+				teacherInfo.setDepartmentNumber(rs.getInt(8));
+				all.add(teacherInfo);
+			}
+			return all;
 		}
 }
