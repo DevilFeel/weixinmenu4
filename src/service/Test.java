@@ -9,15 +9,16 @@ import hyit.app.model.SummaryValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
 
 public class Test {
+	
+	private static Logger logger = Logger.getLogger(Test.class);
 	public static void main(String[] args) throws Exception{
 		
-		BaseFunction bf = new BaseFunction();
-		//获得所有课程信息
-		ServiceFunction sf = new ServiceFunction();
-		List<SummaryValue> list = sf.getAllAbsent();
-		System.out.println(list.size());
+		logger.debug("debug");
+		logger.info("拉拉");
+		logger.error("这样好么");
 		
 	}
 }

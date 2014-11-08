@@ -1,0 +1,27 @@
+[INFO ] 2014-11-01 22:27:40,971                          service.Test     - info
+[INFO ] 2014-11-01 22:28:07,252                          service.Test     - info
+[ERROR] 2014-11-01 22:28:07,253                          service.Test     - error
+[INFO ] 2014-11-01 22:41:47,298                          service.Test     - info
+[ERROR] 2014-11-01 22:41:47,300                          service.Test     - error
+[INFO ] 2014-11-01 22:42:57,880                          service.Test     - 拉拉
+[ERROR] 2014-11-01 22:42:57,882                          service.Test     - 这样好么
+[INFO ] 2014-11-01 22:59:25,397                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:26,452                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:27,548                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:27,797                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:27,895                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:28,059                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:28,089                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:28,267                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:28,345                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:29,580                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:30,903                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:30,991                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:31,350                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:31,362                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:31,417                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:31,826                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:31,851                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:32,072                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:32,128                   service.Absenteeism     - 今日无考勤
+[INFO ] 2014-11-01 22:59:32,144                   service.Absenteeism     - 今日无考勤

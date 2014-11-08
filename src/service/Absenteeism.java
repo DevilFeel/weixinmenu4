@@ -1,10 +1,7 @@
 package service;
 
 import hyit.app.model.CheckInfo;
-import hyit.app.model.ClassInfo;
-import hyit.app.model.CronInfo;
-import hyit.app.model.DepartmentInfo;
-import hyit.app.model.StudentInfo;
+
 import hyit.app.model.SubjectInfo;
 import hyit.app.model.SummaryValue;
 import hyit.app.model.TeacherInfo;
@@ -14,12 +11,11 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 public class Absenteeism {
-	private static final String DBDRIVER = "org.gjt.mm.mysql.Driver";
-	private static final String dbUrl = "jdbc:mysql://localhost:3306/attendanceV2";
-	private static final String dbUser = "root";
-	private static final String dbPwd = "nicai";
-	
+
+	private static Logger logger = Logger.getLogger(Absenteeism.class);
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		BaseFunction baseFunction = new BaseFunction();
@@ -75,12 +71,16 @@ public class Absenteeism {
 				sv.setDate(date);
 				if(baseFunction.docreateSummaryValue(sv)){
 					System.out.println("导入成功");
+					logger.info("导入成功");
+				}else{
+					logger.error("导入失败.");
 				}
 				
 			}else{
-				String str = "";
-				str = subjectName + "共考勤人数:"+countAll + " 缺勤人数" + countAbsent;
-				System.out.println(str);
+				String str = "今日无考勤";
+				//str = subjectName + "共考勤人数:"+countAll + " 缺勤人数" + countAbsent;
+				//System.out.println(str);
+				logger.info(str);
 			}	
 		}
 		

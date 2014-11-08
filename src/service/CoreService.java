@@ -7,12 +7,7 @@ import hyit.app.model.DepartmentInfo;
 import hyit.app.model.SummarySheet;
 import hyit.app.model.SummaryValue;
 import hyit.app.model.TeacherInfo;
-import hyit.app.trigger.SummaryAbsentInfo;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -21,18 +16,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-
-
-
-
-
-
-
-
-
-
-
-
+import org.apache.log4j.Logger;
 
 import message.resp.Article;
 import message.resp.NewsMessage;
@@ -40,11 +24,12 @@ import message.resp.TextMessage;
 import util.MessageUtil;
 
 public class CoreService {
-	private static final String DBDRIVER = "org.gjt.mm.mysql.Driver";
-	private static final String dbUrl = "jdbc:mysql://localhost:3306/attendanceV2";
-	private static final String dbUser = "root";
-	private static final String dbPwd = "nicai";
+//	private static final String DBDRIVER = "org.gjt.mm.mysql.Driver";
+//	private static final String dbUrl = "jdbc:mysql://localhost:3306/attendanceV2";
+//	private static final String dbUser = "root";
+//	private static final String dbPwd = "nicai";
 	//防SQL注入
+	private static Logger logger = Logger.getLogger(CoreService.class);
 	public static String TransactSQLInjection(String str)
 
     {
@@ -81,7 +66,7 @@ public class CoreService {
 			textMessage.setMsgType(MessageUtil.RESP_MESSAGE_TYPE_TEXT);
 			textMessage.setFuncFlag(0);
 			
-			List<Article> articleList = new ArrayList<Article>();
+			//List<Article> articleList = new ArrayList<Article>();
 			//创建图文消息
 			NewsMessage newsMessage = new NewsMessage();
 			newsMessage.setToUserName(fromUserName);
@@ -144,7 +129,7 @@ public class CoreService {
 					if(baseFunction.isExistClass(reqClassName)){
 						int rank = baseFunction.getRankFromParent(fromUserName);
 						
-						Long studentNumber = serviceFunction.getStudentNumberByOpenid(fromUserName);
+						//Long studentNumber = serviceFunction.getStudentNumberByOpenid(fromUserName);
 						if(rank ==1 || rank == 2 || rank==3 || rank ==0){
 							SummarySheet summary = null;
 							List<Long> listAllStudentNumber = null; //全班学号
@@ -194,7 +179,7 @@ public class CoreService {
 						}else{
 							for(int i=0; i<listSummaryValue.size(); i++){
 								SummaryValue sv = listSummaryValue.get(i);
-								str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+								str = str+ sv.getDate().toString()+"\n" +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
 										+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
 										+ "\n";
 								
@@ -224,7 +209,7 @@ public class CoreService {
 						}else{
 							for(int i=0; i<listSummaryValue.size(); i++){
 								SummaryValue sv = listSummaryValue.get(i);
-								str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+								str = str+ sv.getDate().toString()+"\n" +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
 										+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
 										+ "\n";
 								
@@ -310,39 +295,7 @@ public class CoreService {
 						respContent = decrition.subUserPwd();
 						textMessage.setContent(respContent);
 						respMessage = MessageUtil.textMessageToXml(textMessage);
-					} else if (eventKey.equals("14")) {
-						ServiceFunction serviceFunction = new ServiceFunction();
-						Long studentNumber = serviceFunction.getStudentNumberByOpenid(fromUserName);
-						String className = serviceFunction.getClassByStudentNumber(studentNumber);
-						if(studentNumber !=0){
-							SummarySheet summary = null;
-							List<Long> listAllStudentNumber = null; //全班学号
-							Long number = null; //学号
-							List<SummarySheet> list = null;
-							String str = "";
-							listAllStudentNumber = serviceFunction.getClassNumberByOneNumber(studentNumber);
-							Iterator<Long> iterAll = listAllStudentNumber.iterator();
-							while(iterAll.hasNext()){
-								number = iterAll.next();
-								list = DAOFactory.getISummarySheetDAOInstance().getByStudentNumber(number);
-								Iterator<SummarySheet> iter = list.iterator();
-								while(iter.hasNext()){
-									summary = iter.next();
-									if(summary.getAbsenteeism() >0){
-										String studentName = serviceFunction.getNameByStudentNumber(summary.getStudentNumber());
-										str = str + studentName + " ";
-										break;
-									}
-									
-								}
-							}
-							respContent =className + "班的缺勤人员有：\n"+ str;
-						}else{
-							respContent = "请绑定学号";
-						}
-						textMessage.setContent(respContent);
-						respMessage = MessageUtil.textMessageToXml(textMessage);
-					} else if (eventKey.equals("21")) {
+					}  else if (eventKey.equals("21")) {
 						ServiceFunction serviceFunction = new ServiceFunction();
 						long number = serviceFunction.getStudentNumberByOpenid(fromUserName);
 						String name = serviceFunction.getNameByStudentNumber(number);
@@ -372,7 +325,7 @@ public class CoreService {
 						ServiceFunction sf = new ServiceFunction();
 						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
 						int teacherNumber = sf.getTeacherNumberByOpenid(fromUserName);
-						java.sql.Date date = null;
+						//java.sql.Date date = null;
 						String str = "";
 						int rank = bf.getRankFromParent(fromUserName);
 						if(rank==1){
@@ -383,10 +336,10 @@ public class CoreService {
 							}else{
 								for(int i=0; i<listSummaryValue.size(); i++){
 									SummaryValue sv = listSummaryValue.get(i);
-									str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+									str = str+ sv.getDate().toString()+"\n" +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
 											+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
 											+ "\n";
-									date = sv.getDate();
+									//date = sv.getDate();
 								}
 								respContent = "最近一周考勤情况：\n" + str;
 							}
@@ -399,7 +352,7 @@ public class CoreService {
 								TeacherInfo teacherInfo = listTeacherInfo.get(i);
 								tmp = tmp +"教师："+ teacherInfo.getName() +"，编号："+ teacherInfo.getTeacherNumber()+"\n";
 							}
-							respContent = "请输入“教师”+你想查询的教师编号\n例如：教师1314520\n\n"+"\n教师信息如下："+tmp;
+							respContent = "请输入“教师”+你想查询的教师编号\n例如：教师1314520\n\n"+"\n教师信息如下：\n"+tmp;
 						}
 						else if(rank ==2){
 							List<TeacherInfo> listTeacherInfo = new ArrayList<TeacherInfo>();
@@ -411,7 +364,7 @@ public class CoreService {
 									tmp = tmp +"教师："+ teacherInfo.getName() +"，编号："+ teacherInfo.getTeacherNumber()+"\n";
 								}
 							}
-							respContent = "请输入“教师”+你想查询的教师编号\n例如：教师1314520\n\n"+"\n教师信息如下："+tmp;
+							respContent = "请输入“教师”+你想查询的教师编号\n例如：教师1314520\n\n"+"\n教师信息如下：\n"+tmp;
 						}
 						else{
 							respContent = "你不是授课教师哦。";
@@ -424,7 +377,7 @@ public class CoreService {
 						ServiceFunction sf = new ServiceFunction();
 						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
 						
-						java.sql.Date date = null;
+						//java.sql.Date date = null;
 						String str = "";
 						int rank = bf.getRankFromParent(fromUserName);
 						if(rank==2){
@@ -436,10 +389,10 @@ public class CoreService {
 							}else{
 								for(int i=0; i<listSummaryValue.size(); i++){
 									SummaryValue sv = listSummaryValue.get(i);
-									str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+									str = str+ sv.getDate().toString()+"\n" +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
 											+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
 											+ "\n";
-									date = sv.getDate();
+									//date = sv.getDate();
 								}
 								respContent = "最近一周考勤情况：\n" + str;
 							}
@@ -452,7 +405,7 @@ public class CoreService {
 								DepartmentInfo departmentInfo = listDepartment.get(j);
 								strTmp = strTmp +"学院：" + departmentInfo.getName()+",编号："+departmentInfo.getDepartmentNumber()+"\n";
 							}
-							respContent = "请输入“学院”+您想查询的学院编号\n例如：学院666680\n\n各学院信息如下：" + strTmp;
+							respContent = "请输入“学院”+您想查询的学院编号\n例如：学院666680\n\n各学院信息如下：\n" + strTmp;
 						}
 						else{
 							respContent = "你不是学院监察员呢。";
@@ -464,7 +417,7 @@ public class CoreService {
 						BaseFunction bf = new BaseFunction();
 						ServiceFunction sf = new ServiceFunction();
 						List<SummaryValue> listSummaryValue = new ArrayList<SummaryValue>();
-						java.sql.Date date = null;
+						//java.sql.Date date = null;
 						String str = "";
 						int rank = bf.getRankFromParent(fromUserName);
 						if(rank==3 || rank==0){
@@ -474,10 +427,10 @@ public class CoreService {
 							}else{
 								for(int i=0; i<listSummaryValue.size(); i++){
 									SummaryValue sv = listSummaryValue.get(i);
-									str = str +"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
+									str = str + sv.getDate().toString()+"\n"+"["+ sv.getSubjectName()+"]的考勤人数为："+ sv.getAll()
 											+ ",缺勤人数为：" + sv.getAbsent() +"，考勤率为：" + sv.getValue()
 											+ "\n";
-									date = sv.getDate();
+									//date = sv.getDate();
 								}
 								respContent = "最近一周考勤情况：\n" + str;
 							}
